@@ -1,0 +1,9 @@
+version: '3.8'
+services:
+  web:
+    image: nginx:alpine
+    container_name: EC02-Funcionarios
+    ports:
+      - "8082:80"
+    volumes:
+      - .:/usr/share/nginx/html
