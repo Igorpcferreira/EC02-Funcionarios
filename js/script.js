@@ -9,7 +9,6 @@ class Funcionario {
     this._salario = parseFloat(salario);
   }
 
-  // Getters e Setters
   get nome() { return this._nome; }
   set nome(valor) { this._nome = valor; }
 
@@ -27,15 +26,16 @@ class Funcionario {
 }
 
 // ============================
-// CRUD (refatorado com arrow functions)
+// CRUD (com arrow functions)
 // ============================
 let funcionarios = [];
 let indiceEdicao = null;
 
 const form = document.getElementById("formFuncionario");
 const tabela = document.querySelector("#tabelaFuncionarios tbody");
+const saidaRelatorio = document.getElementById("saidaRelatorio");
 
-// Evento de cadastro (arrow)
+// Cadastrar ou atualizar
 form.addEventListener("submit", (e) => {
   e.preventDefault();
 
@@ -48,7 +48,6 @@ form.addEventListener("submit", (e) => {
     const funcionario = new Funcionario(nome, idade, cargo, salario);
     funcionarios.push(funcionario);
     alert(`✅ Funcionário ${funcionario.nome} cadastrado com sucesso!`);
-    console.log("🟢 Novo:", funcionario.toString());
   } else {
     const func = funcionarios[indiceEdicao];
     func.nome = nome;
@@ -56,7 +55,6 @@ form.addEventListener("submit", (e) => {
     func.cargo = cargo;
     func.salario = salario;
     alert(`✏️ Funcionário ${func.nome} atualizado com sucesso!`);
-    console.log("🟡 Atualizado:", func.toString());
     indiceEdicao = null;
   }
 
@@ -64,7 +62,7 @@ form.addEventListener("submit", (e) => {
   renderizarTabela();
 });
 
-// Renderização da tabela (arrow)
+// Renderização da tabela
 const renderizarTabela = () => {
   tabela.innerHTML = "";
 
@@ -77,7 +75,6 @@ const renderizarTabela = () => {
 
     const celAcoes = linha.insertCell();
 
-    // Botão editar (função anônima → arrow)
     const btnEditar = document.createElement("button");
     btnEditar.textContent = "Editar";
     btnEditar.addEventListener("click", () => {
@@ -86,23 +83,56 @@ const renderizarTabela = () => {
       document.getElementById("cargo").value = funcionario.cargo;
       document.getElementById("salario").value = funcionario.salario;
       indiceEdicao = index;
-      console.log(`✏️ Editando: ${funcionario.toString()}`);
     });
 
-    // Botão excluir (arrow + filter)
     const btnExcluir = document.createElement("button");
     btnExcluir.textContent = "Excluir";
     btnExcluir.addEventListener("click", () => {
       if (confirm(`Excluir funcionário ${funcionario.nome}?`)) {
         funcionarios = funcionarios.filter((_, i) => i !== index);
         renderizarTabela();
-        console.log(`🗑️ Excluído: ${funcionario.toString()}`);
       }
     });
 
     celAcoes.appendChild(btnEditar);
     celAcoes.appendChild(btnExcluir);
   });
-
-  console.log("📋 Funcionários atuais:", funcionarios.map(f => f.toString()));
 };
+
+// ============================
+// RELATÓRIOS (Ex04)
+// ============================
+
+// Salários acima de R$5000
+document.getElementById("btnSalariosAltos").addEventListener("click", () => {
+  const altos = funcionarios.filter(f => f.salario > 5000);
+  saidaRelatorio.innerHTML = altos.length
+    ? "💰 Funcionários com salário > R$5000:<br>" + altos.map(f => f.nome).join(", ")
+    : "Nenhum funcionário com salário acima de R$5000.";
+  console.log("💰 Salários altos:", altos.map(f => f.toString()));
+});
+
+// Média Salarial
+document.getElementById("btnMediaSalarial").addEventListener("click", () => {
+  if (funcionarios.length === 0) {
+    saidaRelatorio.textContent = "Nenhum funcionário cadastrado.";
+    return;
+  }
+  const media = funcionarios.map(f => f.salario).reduce((a, b) => a + b, 0) / funcionarios.length;
+  saidaRelatorio.textContent = `📊 Média salarial: R$ ${media.toFixed(2)}`;
+  console.log("📊 Média salarial:", media);
+});
+
+// Cargos únicos
+document.getElementById("btnCargosUnicos").addEventListener("click", () => {
+  const cargos = [...new Set(funcionarios.map(f => f.cargo))];
+  saidaRelatorio.innerHTML = "🏢 Cargos únicos:<br>" + cargos.join(", ");
+  console.log("🏢 Cargos únicos:", cargos);
+});
+
+// Nomes em maiúsculo
+document.getElementById("btnNomesMaiusculo").addEventListener("click", () => {
+  const nomes = funcionarios.map(f => f.nome.toUpperCase());
+  saidaRelatorio.innerHTML = "🧍‍♂️ Nomes em maiúsculo:<br>" + nomes.join(", ");
+  console.log("🧍‍♂️ Nomes maiúsculos:", nomes);
+});
